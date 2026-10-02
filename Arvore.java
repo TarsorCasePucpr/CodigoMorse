@@ -1,39 +1,25 @@
-import java.util.Scanner;
-
 public class Arvore {
 
-    static class No {
-        char letra;
-        String m;
-        No esquerda;
-        No direita;
+    MorseNode raiz;
 
-        No(char letra, String m) {
-            this.letra = letra;
-            this.m = m;
-            esquerda = null;
-            direita = null;
-        }
-    }
-
-    No raiz;
+    private int proximoX;
 
     public Arvore() {
-        raiz = new No(' ', "");
+        raiz = new MorseNode(' ', "");
     }
 
     void inserir(char letra, String morse) {
-        No atual = raiz;
+        MorseNode atual = raiz;
         for (char f : morse.toCharArray()) {
             if (f == '.') {
                 if (atual.esquerda == null) {
-                    atual.esquerda = new No(' ', "");
+                    atual.esquerda = new MorseNode(' ', "");
                 }
                 atual = atual.esquerda;
-            } 
+            }
             else if (f == '-') {
                 if (atual.direita == null) {
-                    atual.direita = new No(' ', "");
+                    atual.direita = new MorseNode(' ', "");
                 }
                 atual = atual.direita;
             }
@@ -43,19 +29,21 @@ public class Arvore {
     }
 
     char decipherLetra(String morse) {
-        No atual = raiz;
-        for (char t : morse.toCharArray()){
-            if (t == '.'){
+        MorseNode atual = raiz;
+        for (char t : morse.toCharArray()) {
+            if (t == '.') {
                 atual = atual.esquerda;
-            } else if(t == '-'){
+            } else if (t == '-') {
                 atual = atual.direita;
+            } else {
+                return '?';
             }
-            if (atual == null) return '?'; 
+            if (atual == null) return '?';
         }
-        return atual.letra;
+        return atual.letra == ' ' ? '?' : atual.letra;
     }
 
-    String buscarMorse(No no, char letraBuscada) {
+    String buscarMorse(MorseNode no, char letraBuscada) {
         if (no == null) return null;
         if (no.letra == letraBuscada) return no.m;
 
@@ -65,123 +53,88 @@ public class Arvore {
         return buscarMorse(no.direita, letraBuscada);
     }
 
-    public static void main(String[] args) {
-        Arvore morse = new Arvore();
+    String codificar(String texto) {
+        String limpo = texto.trim().toUpperCase();
+        if (limpo.isEmpty()) throw new IllegalArgumentException("O texto esta vazio.");
 
-        morse.inserir('A', ".-");
-        morse.inserir('B', "-...");
-        morse.inserir('C', "-.-.");
-        morse.inserir('D', "-..");
-        morse.inserir('E', ".");
-        morse.inserir('F', "..-.");
-        morse.inserir('G', "--.");
-        morse.inserir('H', "....");
-        morse.inserir('I', "..");
-        morse.inserir('J', ".---");
-        morse.inserir('K', "-.-");
-        morse.inserir('L', ".-..");
-        morse.inserir('M', "--");
-        morse.inserir('N', "-.");
-        morse.inserir('O', "---");
-        morse.inserir('P', ".--.");
-        morse.inserir('Q', "--.-");
-        morse.inserir('R', ".-.");
-        morse.inserir('S', "...");
-        morse.inserir('T', "-");
-        morse.inserir('U', "..-");
-        morse.inserir('V', "...-");
-        morse.inserir('W', ".--");
-        morse.inserir('X', "-..-");
-        morse.inserir('Y', "-.--");
-        morse.inserir('Z', "--..");
-
-        morse.inserir('0', "-----");
-        morse.inserir('1', ".----");
-        morse.inserir('2', "..---");
-        morse.inserir('3', "...--");
-        morse.inserir('4', "....-");
-        morse.inserir('5', ".....");
-        morse.inserir('6', "-....");
-        morse.inserir('7', "--...");
-        morse.inserir('8', "---..");
-        morse.inserir('9', "----.");
-
-        FileService fileService = new FileService(morse); // NOVO
-
-        Scanner scanner = new Scanner(System.in);
-        boolean executando = true;
-
-        while (executando) {
-            System.out.println("\nMorse Menu");
-            System.out.println("1.- Cipher (Texto a Morse)");
-            System.out.println("2.- Decipher (Morse a Texto)");
-            System.out.println("3.- Codificar arquivo");   // NOVO
-            System.out.println("4.- Decodificar arquivo"); // NOVO
-            System.out.println("0.- Sair");                // ALTERADO (era 3)
-            System.out.print("Escolha uma opção: ");
-
-            int opcao = scanner.nextInt(); 
-            scanner.nextLine();
-
-            switch (opcao) {
-                case 1:
-                    System.out.print("Texto a cifrar: ");
-                    String texto = scanner.nextLine().toUpperCase();
-                    System.out.print("Resultado: ");
-                    for (char c : texto.toCharArray()) {
-                        if (c == ' ') {
-                            System.out.print(" / ");
-                        } else {
-                            String codigo = morse.buscarMorse(morse.raiz, c);
-                            System.out.print((codigo != null ? codigo : "?") + " ");
-                        }
-                    }
-                    System.out.println();
-                    break;
-
-                case 2:
-                    System.out.print("Morse a decifrar: ");
-                    String valor = scanner.nextLine();
-                    System.out.print("Resultado: ");
-                    String[] letrasMorse = valor.split(" ");
-                    for (String m : letrasMorse) {
-                        if (m.equals("/")) {
-                            System.out.print(" ");
-                        } else {
-                            System.out.print(morse.decipherLetra(m));
-                        }
-                    }
-                    System.out.println();
-                    break;
-
-                case 3: // codificar arquivo
-                    System.out.print("Caminho do arquivo .txt: ");
-                    try {
-                        System.out.println("Resultado: " + fileService.codificarArquivo(scanner.nextLine()));
-                    } catch (java.io.IOException | IllegalArgumentException e) {
-                        System.out.println("Erro: " + e.getMessage());
-                    }
-                    break;
-
-                case 4: // decodificar arquivo
-                    System.out.print("Caminho do arquivo Morse: ");
-                    try {
-                        System.out.println("Resultado: " + fileService.decodificarArquivo(scanner.nextLine()));
-                    } catch (java.io.IOException | IllegalArgumentException e) {
-                        System.out.println("Erro: " + e.getMessage());
-                    }
-                    break;
-
-                case 0: // ALTERADO (era case 3)
-                    executando = false;
-                    System.out.println("Saindo do programa");
-                    break;
-
-                default:
-                    System.out.println("Tenta novamente.");
-                    break;
+        String[] palavras = limpo.split("\\s+");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < palavras.length; i++) {
+            for (char c : palavras[i].toCharArray()) {
+                String codigo = buscarMorse(raiz, c);
+                sb.append(codigo != null ? codigo : "?").append(' ');
             }
+            if (i < palavras.length - 1) sb.append("/ ");
         }
-        scanner.close();
+        return sb.toString().trim();
+    }
+
+    String decodificar(String morse) {
+        if (!morse.matches("[.\\-/ ]+") || morse.isBlank()) {
+            throw new IllegalArgumentException(
+                "Entrada invalida: use uma unica linha apenas com . - / e espaco.");
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (String token : morse.split(" ")) {
+            if (token.isEmpty()) continue;
+            sb.append(token.equals("/") ? ' ' : decipherLetra(token));
+        }
+        return sb.toString();
+    }
+
+    void imprimirArvoreVertical() {
+        int d = profundidade(raiz);
+        char[][] grade = new char[3 * d + 2][largura(raiz, "")];
+        for (char[] linha : grade) java.util.Arrays.fill(linha, ' ');
+        proximoX = 0;
+        desenhar(grade, raiz, 0, "");
+        for (char[] linha : grade) {
+            System.out.println(new String(linha).replaceAll("\\s+$", ""));
+        }
+    }
+
+    private int profundidade(MorseNode no) {
+        if (no == null) return -1;
+        return 1 + Math.max(profundidade(no.esquerda), profundidade(no.direita));
+    }
+
+    private int largura(MorseNode no, String cod) {
+        if (no == null) return 0;
+        return largura(no.esquerda, cod + ".") + Math.max(1, cod.length()) + 1
+                + largura(no.direita, cod + "-");
+    }
+
+    private void escrever(char[][] grade, int linha, int col, String texto) {
+        int inicio = col - texto.length() / 2;
+        for (int i = 0; i < texto.length(); i++) grade[linha][inicio + i] = texto.charAt(i);
+    }
+
+    private int desenhar(char[][] grade, MorseNode no, int nivel, String cod) {
+        int l = no.esquerda != null ? desenhar(grade, no.esquerda, nivel + 1, cod + ".") : -1;
+        int w = Math.max(1, cod.length()) + 1;
+        int col = proximoX + w / 2;
+        proximoX += w;
+        int r = no.direita != null ? desenhar(grade, no.direita, nivel + 1, cod + "-") : -1;
+
+        int linha = 3 * nivel;
+        escrever(grade, linha, col, no == raiz ? "R" : (no.letra == ' ' ? "*" : String.valueOf(no.letra)));
+        escrever(grade, linha + 1, col, cod);
+
+        int ln = linha + 2;
+        if (l >= 0) {
+            grade[ln][l] = '┌';
+            for (int x = l + 1; x < col; x++) grade[ln][x] = '─';
+            grade[ln][l + 1] = '.';
+        }
+        if (r >= 0) {
+            grade[ln][r] = '┐';
+            for (int x = col + 1; x < r; x++) grade[ln][x] = '─';
+            grade[ln][r - 1] = '-';
+        }
+        if (l >= 0 || r >= 0) {
+            grade[ln][col] = l >= 0 && r >= 0 ? '┴' : l >= 0 ? '┘' : '└';
+        }
+        return col;
     }
 }
