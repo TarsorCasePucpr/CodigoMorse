@@ -106,6 +106,8 @@ public class Arvore {
         morse.inserir('8', "---..");
         morse.inserir('9', "----.");
 
+        FileService fileService = new FileService(morse); // NOVO
+
         Scanner scanner = new Scanner(System.in);
         boolean executando = true;
 
@@ -113,7 +115,9 @@ public class Arvore {
             System.out.println("\nMorse Menu");
             System.out.println("1.- Cipher (Texto a Morse)");
             System.out.println("2.- Decipher (Morse a Texto)");
-            System.out.println("3.- Sair");
+            System.out.println("3.- Codificar arquivo");   // NOVO
+            System.out.println("4.- Decodificar arquivo"); // NOVO
+            System.out.println("0.- Sair");                // ALTERADO (era 3)
             System.out.print("Escolha uma opção: ");
 
             int opcao = scanner.nextInt(); 
@@ -150,7 +154,25 @@ public class Arvore {
                     System.out.println();
                     break;
 
-                case 3:
+                case 3: // codificar arquivo
+                    System.out.print("Caminho do arquivo .txt: ");
+                    try {
+                        System.out.println("Resultado: " + fileService.codificarArquivo(scanner.nextLine()));
+                    } catch (java.io.IOException | IllegalArgumentException e) {
+                        System.out.println("Erro: " + e.getMessage());
+                    }
+                    break;
+
+                case 4: // decodificar arquivo
+                    System.out.print("Caminho do arquivo Morse: ");
+                    try {
+                        System.out.println("Resultado: " + fileService.decodificarArquivo(scanner.nextLine()));
+                    } catch (java.io.IOException | IllegalArgumentException e) {
+                        System.out.println("Erro: " + e.getMessage());
+                    }
+                    break;
+
+                case 0: // ALTERADO (era case 3)
                     executando = false;
                     System.out.println("Saindo do programa");
                     break;
