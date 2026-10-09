@@ -72,8 +72,6 @@ Com o programa executado na pasta do projeto:
 ## Referências
 
 - Vídeo sobre árvore de Código Morse: <https://www.youtube.com/watch?v=BqeX-4TshEA>
-- Documentação oficial do Java (leitura de arquivos e tratamento de exceções)
-- Ferramentas de IA foram utilizadas como apoio; o código foi compreendido e revisado pela equipe.
 
 ## Equipe
 
